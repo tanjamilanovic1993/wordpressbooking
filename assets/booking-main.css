@@ -1,0 +1,279 @@
+body.admin-bar #bookingModal {
+  padding-top: 32px; }
+
+#bookingModal {
+  padding-left: 0 !important;
+  min-width: 240px; }
+  #bookingModal .modal-lg {
+    margin: 2rem 1rem; }
+    @media (min-width: 576px) {
+      #bookingModal .modal-lg {
+        max-width: 500px;
+        margin: 2rem auto; } }
+    @media (min-width: 992px) {
+      #bookingModal .modal-lg {
+        max-width: 800px; } }
+    @media (min-width: 1200px) {
+      #bookingModal .modal-lg {
+        max-width: 1100px; } }
+  #bookingModal hr {
+    background-color: transparent;
+    border-top-color: #bbb; }
+  #bookingModal h4 {
+    text-transform: none;
+    letter-spacing: 1px;
+    color: #333; }
+  #bookingModal h5 {
+    text-transform: none;
+    letter-spacing: 1px;
+    color: #666; }
+  #bookingModal .btn {
+    border: none;
+    color: #fff;
+    background-color: #aaa; }
+    #bookingModal .btn.btn-highlight {
+      background-color: #BE6C84; }
+      #bookingModal .btn.btn-highlight:hover {
+        background-color: #665F79; }
+    #bookingModal .btn:hover {
+      background-color: #BE6C84; }
+    #bookingModal .btn:focus {
+      box-shadow: none; }
+  #bookingModal button.counter {
+    width: 26px;
+    background-color: #aaa; }
+  #bookingModal .mainb {
+    margin-bottom: 4px; }
+    #bookingModal .mainb:hover {
+      background-color: #6c757d;
+      color: floralwhite; }
+    #bookingModal .mainb:target {
+      background-color: #665F79; }
+    #bookingModal .mainb:focus {
+      background-color: #6c757d;
+      color: floralwhite;
+      box-shadow: 0 0 0 0.2rem rgba(143, 143, 143, 0.25); }
+  #bookingModal .service-label {
+    width: 150px;
+    pointer-events: none;
+    cursor: none;
+    color: #777;
+    background-color: #eee; }
+  #bookingModal .btn-group {
+    margin-bottom: 5px; }
+  #bookingModal .btn-group button {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem; }
+  #bookingModal a {
+    box-shadow: none; }
+  #bookingModal .property-buttons {
+    display: none; }
+  #bookingModal .customize-service > .row h5 {
+    margin-bottom: 1rem; }
+  #bookingModal .customize-service > .row .card-body {
+    padding-left: 0;
+    padding-right: 0; }
+  @media (max-width: 576px) {
+    #bookingModal .propertyb,
+    #bookingModal .carpetb {
+      display: block; } }
+  #bookingModal .summary-content {
+    display: none; }
+  #bookingModal .summary-content .list-group-item {
+    border-color: #bbb; }
+  #bookingModal #crumbs {
+    text-align: center; }
+  #bookingModal #crumbs ul {
+    list-style: none;
+    display: inline-block;
+    border-bottom: none;
+    padding-bottom: 8px; }
+  #bookingModal #crumbs ul li {
+    display: inline;
+    position: relative;
+    z-index: 2; }
+  #bookingModal #crumbs ul li:last-child {
+    z-index: 1; }
+  #bookingModal #crumbs ul li:first-child {
+    z-index: 3; }
+  #bookingModal #crumbs ul li a {
+    display: block;
+    float: left;
+    height: 25px;
+    width: 350px;
+    background: #BE6C84;
+    text-align: center;
+    padding: 12px 20px 28px 40px;
+    position: relative;
+    margin: 0 5px 5px 0;
+    font-size: 12px;
+    text-decoration: none;
+    color: #fff; }
+  #bookingModal #crumbs ul li a:after {
+    content: "";
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 20px solid #BE6C84;
+    position: absolute;
+    right: -20px;
+    top: 0;
+    z-index: 1; }
+  #bookingModal #crumbs ul li a:before {
+    content: "";
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 20px solid #fff;
+    position: absolute;
+    left: 0;
+    top: 0; }
+  #bookingModal #crumbs ul li a.active,
+  #bookingModal #crumbs ul li a.fejl-active {
+    background-color: #665F79; }
+  #bookingModal #crumbs ul li a.active:after,
+  #bookingModal #crumbs ul li a.fejl-active:after {
+    border-left: 20px solid #665F79; }
+  #bookingModal #crumbs ul li:first-child a {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px; }
+  #bookingModal #crumbs ul li:first-child a:before {
+    display: none; }
+  #bookingModal #crumbs ul li:last-child a {
+    padding-right: 40px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px; }
+  #bookingModal #crumbs ul li:last-child a:after {
+    display: none; }
+  #bookingModal .close-modal {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border: none;
+    color: white;
+    padding: 0 0 2px 1px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    border-radius: 50%;
+    right: -15px;
+    top: -15px;
+    z-index: 1; }
+  @media (max-width: 370px) {
+    #bookingModal #crumbs ul li a {
+      width: 70px;
+      padding: 15px 4px 25px 30px;
+      font-size: 10px; }
+    #bookingModal h4 {
+      font-size: 20px; } }
+  @media (min-width: 371px) and (max-width: 576px) {
+    #bookingModal #crumbs ul li a {
+      width: 100px;
+      padding: 15px 4px 25px 30px;
+      font-size: 10px; }
+    #bookingModal h4 {
+      font-size: 20px; } }
+  @media (min-width: 576px) and (max-width: 991px) {
+    #bookingModal #crumbs ul li a {
+      width: 150px;
+      padding: 15px 4px 25px 30px;
+      font-size: 15px; }
+    #bookingModal #crumbs ul li:last-child a {
+      padding-right: 15px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px; }
+    #bookingModal #nav-home-tab, #bookingModal #nav-service-tab, #bookingModal #nav-contact-tab {
+      padding-top: 10px !important;
+      padding-bottom: 30px !important; } }
+  @media (min-width: 992px) and (max-width: 1199px) {
+    #bookingModal #crumbs ul li a {
+      width: 250px; }
+    #bookingModal h4 {
+      font-size: 20px; } }
+  #bookingModal .reset {
+    margin-bottom: 0.5em;
+    cursor: pointer; }
+  #bookingModal .card {
+    border-radius: 0.25rem;
+    border: none;
+    margin-top: 0;
+    padding-top: 0; }
+  #bookingModal .timeslots-container .card-header {
+    background-color: #BE6C84;
+    color: white;
+    border-bottom: none;
+    letter-spacing: 1px; }
+  #bookingModal .timeslots-container .card {
+    overflow: hidden; }
+  #bookingModal .timeslots-container .list-group {
+    background-color: #eee;
+    color: #777; }
+  #bookingModal .timeslots-container .list-group-item {
+    border: none;
+    background-color: transparent;
+    margin-bottom: 1px;
+    cursor: pointer;
+    font-size: 15px; }
+  #bookingModal .timeslots-container .list-group-item:nth-child(even) {
+    background-color: #f6f6f6; }
+  #bookingModal .timeslots-container .list-group-item.selected {
+    background: #665F79;
+    border-radius: 0.25rem;
+    color: white !important; }
+  #bookingModal .timeslots-container .list-group-item:hover {
+    background: #BE6C84;
+    border-radius: 0.25rem;
+    color: white; }
+  #bookingModal .timeslots-container .list-group-item.not-available {
+    opacity: 0.5;
+    pointer-events: none;
+    background: repeating-linear-gradient(-55deg, transparent, transparent 10px, #e9dae2 10px, #e9dae2 11px); }
+  #bookingModal .timeslots-container .list-group-item:nth-child(even).not-available {
+    background: repeating-linear-gradient(-55deg, #f6f6f6, #f6f6f6 10px, #e9dae2 10px, #e9dae2 11px); }
+  #bookingModal .bactive {
+    background-color: #665F79 !important;
+    color: floralwhite; }
+    #bookingModal .bactive:focus {
+      box-shadow: 0 0 0 0.2rem rgba(250, 91, 165, 0.17); }
+  #bookingModal .badge-info {
+    background-color: #BE6C84; }
+  #bookingModal .disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5; }
+  #bookingModal #personal input[type="submit"] {
+    background-color: #BE6C84 !important;
+    color: floralwhite !important;
+    border-color: #BE6C84 !important; }
+    #bookingModal #personal input[type="submit"]:hover {
+      background-color: #BE6C84;
+      border-color: #BE6C84;
+      color: floralwhite; }
+    #bookingModal #personal input[type="submit"]:active {
+      background-color: #BE6C84 !important;
+      border-color: #BE6C84 !important;
+      color: floralwhite; }
+    #bookingModal #personal input[type="submit"]:focus {
+      background-color: #BE6C84 !important;
+      border-color: #BE6C84 !important;
+      box-shadow: 0 0 0 0.1rem #8bceb0 !important;
+      color: floralwhite; }
+    #bookingModal #personal input[type="submit"]:target {
+      background-color: #BE6C84 !important;
+      border-color: #BE6C84 !important;
+      color: floralwhite; }
+  #bookingModal input:focus {
+    border-color: #7dceafa1 !important;
+    box-shadow: 0 0 0 0.2rem rgba(125, 206, 175, 0.48) !important; }
+  #bookingModal .next, #bookingModal .prev {
+    cursor: pointer;
+    margin-bottom: 0.8em; }
+  #bookingModal .custom-control-input:checked, #bookingModal .custom-control-label::before {
+    color: #fff !important;
+    background-color: #665F79 !important; }
+  #bookingModal .custom-control-input:focus, #bookingModal .custom-control-label::before {
+    box-shadow: 0 0 0 1px #fff, 0 0 0 0.2rem rgba(245, 127, 91, 0.25) !important; }
+  #bookingModal .custom-control-input:active, #bookingModal .custom-control-label::before {
+    color: #fff;
+    background-color: #b3d7ff; }
+
+/*# sourceMappingURL=booking-main.css.map */
