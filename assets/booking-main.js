@@ -1,7 +1,12 @@
 var $ = jQuery.noConflict();
 $( document ).ready(function() {
+
+    $(".Cbuttons .carpets-img").tooltip('disable');
+
     $("#nav-contact-tab").on("click", function () {
-        $("#nav-service .summContainer #summary").appendTo("#nav-contact .summContainer");
+        $("#nav-service .summContainer #summary").prependTo("#nav-contact .summContainer");
+        $("#nav-contact #summary").removeClass('order-md-2');
+        $("#nav-contact #summary").addClass('order-lg-1');
     });
 
     $("#nav-service-tab").on("click", function () {
@@ -28,6 +33,32 @@ $("#personal").submit(function(e) {
 
     var bName = $("#firstName").val();
     var bLastname = $("#lastName").val();
+    var bemail = $("#email").val();
+    var bphone = $("#phone").val();
+    var propertyDetails = {
+        address: $("#address").val(),
+        houseno: $("#houseno").val(),
+        postcode: $("#postcode").val(),
+        city: $("#city").val()
+    };
+    var key;
+    if($('#key-pickup').is(':checked')){
+        key = 1;
+        console.log('Usao checked')
+    }
+    else {
+        key = 0;
+        console.log('Nije chekirano')
+    }
+
+    var additionalDetails = {
+        keyAddress: $("#key-address").val(),
+        keyHouseno: $("#key-houseno").val(),
+        keyPostcode: $("#key-postcode").val(),
+        keyCity: $("#key-city").val(),
+        instructions: $("#addcomment").val(),
+    };
+
 
     var txt = "";
     var total = $(".summary-content.summary-active .total-price").text().trim();
@@ -39,7 +70,7 @@ $("#personal").submit(function(e) {
     var bookingSummary = $(".summary-content.summary-active .d-100");
 
     txt += "<h3>" + property + "</h3>";
-    txt += "<ul>";
+    txt += "<ul style=\"padding-left: 20px;\">";
     for (var i = 0; i < bookingSummary.length - 1; i++) {
         if (bookingSummary.eq(i).hasClass('d-flex')) {
             txt += "<li>";
@@ -48,14 +79,19 @@ $("#personal").submit(function(e) {
         }
     }
     txt += "</ul>";
-    txt += "<p style=\"text-align: left; padding-left: 23px;\"><strong>Date: " + date + "</strong></p>\n";
-    txt += "<p style=\"text-align: left; padding-left: 23px;\"><strong>Time: " + timeSlot + "</strong></p>\n";
-    txt += "<p style=\"text-align: left; padding-left: 23px;\"><strong>Total sum: " + total + "</strong></p>";
+    txt += "<div style=\"display: flex;\">";
+    txt += "<strong style=\"padding: 20px;\">Date: " + date + "</strong>";
+    txt += "<strong style=\"padding: 20px;\">Time: " + timeSlot + "</strong>";
+    txt += "<strong style=\"padding: 20px;\">Total sum: " + total + "</strong>";
+    txt += "</div>";
 
     $.ajax({
         type: "POST",
         url: bookingObj.ajaxUrl,
-        data: {action: 'tm_add_new_booking_ajax', first_name: bName, last_name: bLastname, text_content: txt, date: date.replace(/\//g, '.'), time: time},
+        data: {action: 'tm_add_new_booking_ajax',
+            first_name: bName, last_name: bLastname, email: bemail,
+            text_content: txt, date: date.replace(/\//g, '.'), time: time, phone: bphone,
+            property_details: propertyDetails, key: key, additional_details: additionalDetails},
         success: function (data) {
             alert('Success!');
             //$('#ovde').html(data);
@@ -179,6 +215,7 @@ $(".propertyb").on("click", function () {
     $(".property-buttons").slideUp();
     $(".summary-content").hide().removeClass('summary-active');
 
+
     var btnID = $(this).attr("id");
     btnID = btnID.substr(0, btnID.length - 1);
     if ($("#" + btnID + "-buttons").length) {
@@ -199,6 +236,8 @@ $(".propertyb").on("click", function () {
 
     $("#nav-contact-tab").removeClass('disabled');
     $("#nav-service .btn-next").removeClass('disabled');
+
+    $("#studio-summary-content .property-img").tooltip('disable')
     totalSum();
 });
 
@@ -234,6 +273,7 @@ function OpenService3() {
 
 $(".redeem button").on('click', function () {
     var val = $(this).parent().parent().find('.form-control').val();
+    var sum = 0;
     $(".summary-content").each(function () {
         if (val === "FIVECLEANOFF") {
             $(".promo_li", this).removeClass("d-none").addClass("d-flex");
@@ -241,6 +281,7 @@ $(".redeem button").on('click', function () {
         else {
             $(".promo_li", this).removeClass("d-flex").addClass("d-none");
         }
+        totalSum();
     });
 });
 
@@ -269,12 +310,14 @@ $("#studiob, #flatb, #houseb, #noc, #hoov, #steamc").on("click", function () {
             $(".summary-content").each(function () {
                 $(".hoovered-carpet", this).removeClass('d-none').addClass('d-flex');
                 $(".no-carpet", this).removeClass('d-flex').addClass('d-none');
+                $(".Cbuttons .carpets-img").tooltip('disable');
             });
         }
         else if(t==="No Carpets"){
             $(".summary-content").each(function () {
                 $(".no-carpet", this).removeClass('d-none').addClass('d-flex');
                 $(".hoovered-carpet", this).removeClass('d-flex').addClass('d-none');
+                $(".Cbuttons .carpets-img").tooltip('disable');
             });
         }
         else{
@@ -282,6 +325,7 @@ $("#studiob, #flatb, #houseb, #noc, #hoov, #steamc").on("click", function () {
             $(".summary-content").each(function () {
                 $(".hoovered-carpet", this).removeClass('d-flex').addClass('d-none');
                 $(".no-carpet", this).removeClass('d-flex').addClass('d-none');
+                $(".Cbuttons .carpets-img").tooltip('enable');
             });
         }
         console.log("Usao je u carpets");
@@ -395,6 +439,9 @@ function totalSum() {
                 sum = sum + parseInt(price);
             }
         }
+        if($(".promo_li", this).hasClass('d-flex')){
+            sum = sum - 5;
+        }
         $(".total-price", this).html("£" + sum);
     });
 }
@@ -406,6 +453,13 @@ $(".reset").on("click", function () {
     var btns = $("#" + divID + " .btn-group span");
     var minVal = 0;
 
+    if($(this).parent().parent().hasClass('property-buttons')){
+        console.log('Reset IZ propertija');
+
+    }
+    else{
+        console.log('Reset izvan propertija');
+    }
     console.log(divID);
 
     var pname = divID.substr(0, divID.indexOf('-'));
@@ -413,9 +467,12 @@ $(".reset").on("click", function () {
 
     console.log(pname);
 
-    var btnsSum = $('#' + pname + ' small span');
+    var btnsSum = $('#' + pname + ' .property small span');
     var btnsSumPrice = $('#' + pname + ' .property .price');
     // var itemPrice;
+
+    console.log(btnsSum.length + "Joj");
+    console.log(btnsSumPrice.length + "Joj");
 
     for (var i = 0; i <= btns.length; i++) {
         if (btns.eq(i).hasClass('min1')) {

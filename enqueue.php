@@ -31,7 +31,4 @@ function tm_enqueue(){
 	wp_enqueue_script( 'tm_main_js' );
 
 
-
-
-
 }

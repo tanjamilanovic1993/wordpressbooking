@@ -240,14 +240,18 @@ body.admin-bar #bookingModal {
     pointer-events: none;
     cursor: not-allowed;
     opacity: 0.5; }
+  #bookingModal input:focus, #bookingModal #addcomment:focus {
+    border-color: #beb1b7 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 200, 255, 0.48) !important; }
   #bookingModal #personal input[type="submit"] {
     background-color: #BE6C84 !important;
     color: floralwhite !important;
     border-color: #BE6C84 !important; }
     #bookingModal #personal input[type="submit"]:hover {
-      background-color: #BE6C84;
+      background-color: #703b4e;
       border-color: #BE6C84;
-      color: floralwhite; }
+      color: floralwhite;
+      transform: scale(1.015, 1.2); }
     #bookingModal #personal input[type="submit"]:active {
       background-color: #BE6C84 !important;
       border-color: #BE6C84 !important;
@@ -255,15 +259,12 @@ body.admin-bar #bookingModal {
     #bookingModal #personal input[type="submit"]:focus {
       background-color: #BE6C84 !important;
       border-color: #BE6C84 !important;
-      box-shadow: 0 0 0 0.1rem #8bceb0 !important;
+      box-shadow: 0 0 0 0.1rem #be97a8 !important;
       color: floralwhite; }
     #bookingModal #personal input[type="submit"]:target {
       background-color: #BE6C84 !important;
       border-color: #BE6C84 !important;
       color: floralwhite; }
-  #bookingModal input:focus {
-    border-color: #7dceafa1 !important;
-    box-shadow: 0 0 0 0.2rem rgba(125, 206, 175, 0.48) !important; }
   #bookingModal .next, #bookingModal .prev {
     cursor: pointer;
     margin-bottom: 0.8em; }
