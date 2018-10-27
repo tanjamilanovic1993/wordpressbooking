@@ -1,4 +1,5 @@
 var $ = jQuery.noConflict();
+
 $( document ).ready(function() {
 
     $(".Cbuttons .carpets-img").tooltip('disable');
@@ -17,6 +18,7 @@ $( document ).ready(function() {
 
     $('[data-toggle="tooltip"]').tooltip();
 
+    $("#studio-summary-content .property-img").tooltip('disable');
 
     clickCalendar();
 
@@ -26,83 +28,6 @@ $( document ).ready(function() {
 
     checkIfChoosen();
 });
-
-
-$("#personal").submit(function(e) {
-    e.preventDefault();
-
-    var bName = $("#firstName").val();
-    var bLastname = $("#lastName").val();
-    var bemail = $("#email").val();
-    var bphone = $("#phone").val();
-    var propertyDetails = {
-        address: $("#address").val(),
-        houseno: $("#houseno").val(),
-        postcode: $("#postcode").val(),
-        city: $("#city").val()
-    };
-    var key;
-    if($('#key-pickup').is(':checked')){
-        key = 1;
-        console.log('Usao checked')
-    }
-    else {
-        key = 0;
-        console.log('Nije chekirano')
-    }
-
-    var additionalDetails = {
-        keyAddress: $("#key-address").val(),
-        keyHouseno: $("#key-houseno").val(),
-        keyPostcode: $("#key-postcode").val(),
-        keyCity: $("#key-city").val(),
-        instructions: $("#addcomment").val(),
-    };
-
-
-    var txt = "";
-    var total = $(".summary-content.summary-active .total-price").text().trim();
-    var property = $(".summary-content.summary-active .sproperty").text().trim();
-    var date = $(".summary-content.summary-active .sdate").text().trim();
-    var timeSlot = $(".summary-content.summary-active .stime").text().trim();
-    var time = timeSlot.split(' - ')[0].trim();
-
-    var bookingSummary = $(".summary-content.summary-active .d-100");
-
-    txt += "<h3>" + property + "</h3>";
-    txt += "<ul style=\"padding-left: 20px;\">";
-    for (var i = 0; i < bookingSummary.length - 1; i++) {
-        if (bookingSummary.eq(i).hasClass('d-flex')) {
-            txt += "<li>";
-            txt += bookingSummary.eq(i).text().replace(/\n/g, "");
-            txt += "</li>";
-        }
-    }
-    txt += "</ul>";
-    txt += "<div style=\"display: flex;\">";
-    txt += "<strong style=\"padding: 20px;\">Date: " + date + "</strong>";
-    txt += "<strong style=\"padding: 20px;\">Time: " + timeSlot + "</strong>";
-    txt += "<strong style=\"padding: 20px;\">Total sum: " + total + "</strong>";
-    txt += "</div>";
-
-    $.ajax({
-        type: "POST",
-        url: bookingObj.ajaxUrl,
-        data: {action: 'tm_add_new_booking_ajax',
-            first_name: bName, last_name: bLastname, email: bemail,
-            text_content: txt, date: date.replace(/\//g, '.'), time: time, phone: bphone,
-            property_details: propertyDetails, key: key, additional_details: additionalDetails},
-        success: function (data) {
-            alert('Success!');
-            //$('#ovde').html(data);
-        },
-        error: function (data) {
-            //alert('Error');
-        },
-    });
-});
-
-
 
 //Ispisivanje kalendara na klik next, prev
 function changeCalendar(){
@@ -124,7 +49,6 @@ $(".calendar-container li.change").on("click", function () {
             yearNum--;
         }
     }
-
     $.ajax({
         type: "POST",
         url: bookingObj.ajaxUrl,
@@ -142,10 +66,9 @@ $(".calendar-container li.change").on("click", function () {
 });
 }
 
+// Provera da li je izabra datum i vreme kako bi nastavili na T2
 function checkIfChoosen() {
     var t = $(".timeslots-container li.selected").length;
-
-    console.log(t);
 
     if(!t){
         $("#nav-service-tab").addClass('disabled');
@@ -157,6 +80,8 @@ function checkIfChoosen() {
     }
 }
 
+
+//Klik na kalendar ucitavanje timeslotsa - AJAX
 function clickCalendar(){
     $(".calendar li.active span").on("click", function () {
         $(".calendar li").removeClass('selected');
@@ -182,7 +107,7 @@ function clickCalendar(){
     });
 }
 
-
+//Klik na timeslots
 function timeslotSelection(){
     var dayNum = parseInt($(".timeslot-header").attr('data-day'));
     var monthNum = parseInt($(".calendar").attr('data-month'));
@@ -193,10 +118,6 @@ function timeslotSelection(){
         $(this).addClass('selected');
 
         checkIfChoosen();
-
-        //if (dayNum == $(".calendar .current span").text()) {
-        //    $("li.current").addClass('selected');
-        //}
 
         var date = dayNum + "/" + monthNum + "/" + yearNum;
         var time = $(this).html();
@@ -210,16 +131,43 @@ function timeslotSelection(){
 
 
 
+//Provera da li su na T2 zadovoljeni uslovi za sl. korak
+function checkIfDisabled(){
+  if($(".summary-active").length){
+      var text = $(".summary-active .scarpets").text();
+
+      if((text == "Steam Cleaned")){
+        if( $(".c1").hasClass('d-flex') || $(".c2").hasClass('d-flex')){
+            $("#nav-contact-tab").removeClass('disabled');
+            $("#nav-service .btn-next").removeClass('disabled');
+        }
+        else{
+            $("#nav-contact-tab").addClass('disabled');
+            $("#nav-service .btn-next").addClass('disabled');
+        }
+      }
+
+      if (text == "No Carpets" || text == "Hoovered"){
+          $("#nav-contact-tab").removeClass('disabled');
+          $("#nav-service .btn-next").removeClass('disabled');
+      }
+  }
+};
+
+
 $(".propertyb").on("click", function () {
-    // $(".reset").trigger( "click" );
     $(".property-buttons").slideUp();
     $(".summary-content").hide().removeClass('summary-active');
-
 
     var btnID = $(this).attr("id");
     btnID = btnID.substr(0, btnID.length - 1);
     if ($("#" + btnID + "-buttons").length) {
-        $("#" + btnID + "-buttons").slideDown();
+        if($("#" + btnID + "-buttons").is(':visible')){
+            $("#" + btnID + "-buttons").slideUp();
+        }
+        else {
+            $("#" + btnID + "-buttons").slideDown();
+        }
     }
     else {
        var list = $("#" + btnID + '-summary-content .property .d-100');
@@ -234,43 +182,13 @@ $(".propertyb").on("click", function () {
 
     $("#" + btnID + '-summary-content').show().addClass('summary-active');
 
-    $("#nav-contact-tab").removeClass('disabled');
-    $("#nav-service .btn-next").removeClass('disabled');
+    checkIfDisabled();
 
-    $("#studio-summary-content .property-img").tooltip('disable')
     totalSum();
 });
 
 
-function CarpetsHide() {
-    $("#Cbuttons").collapse('hide');
-}
-
-function StageCrumbs1() {
-    $("#nav-service-tab").removeClass("fejl-active");
-}
-
-function StageCrumbs2() {
-    $("#nav-home-tab").addClass("fejl-active");
-}
-
-
-function StageCrumbs3() {
-    $("#nav-service-tab").addClass("fejl-active");
-}
-
-function OpenService2() {
-    $("#nav-service-tab").trigger("click");
-    $("#next1").tooltip('dispose');
-    $("#next1").tooltip('enable');
-
-}
-
-function OpenService3() {
-    $("#nav-contact-tab").trigger("click");
-}
-
-
+//Reedem kod check
 $(".redeem button").on('click', function () {
     var val = $(this).parent().parent().find('.form-control').val();
     var sum = 0;
@@ -322,6 +240,9 @@ $("#studiob, #flatb, #houseb, #noc, #hoov, #steamc").on("click", function () {
         }
         else{
 
+            $("#nav-contact-tab").addClass('disabled');
+            $("#nav-service .btn-next").addClass('disabled');
+
             $(".summary-content").each(function () {
                 $(".hoovered-carpet", this).removeClass('d-flex').addClass('d-none');
                 $(".no-carpet", this).removeClass('d-flex').addClass('d-none');
@@ -333,6 +254,7 @@ $("#studiob, #flatb, #houseb, #noc, #hoov, #steamc").on("click", function () {
         $("#Cbuttons .reset").trigger("click");
 
     }
+    checkIfDisabled();
 });
 
 
@@ -372,7 +294,7 @@ $(".counter").on("click", function () {
     }
 
     summaryCalc($(this), t, minVal);                                                 // Summary filled
-
+    checkIfDisabled();
 });
 
 
@@ -447,7 +369,7 @@ function totalSum() {
 }
 
 
-// New Reset function
+// Reset class
 $(".reset").on("click", function () {
     var divID = $(this).parent().parent().attr("id");
     var btns = $("#" + divID + " .btn-group span");
@@ -501,96 +423,10 @@ $(".reset").on("click", function () {
     });
 
     totalSum();
+    checkIfDisabled();
 });
 
-
-//Reset subButtons to default values
-// $(".reset").on("click", function () {
-//     var btngroup = $(this).parent().parent();
-//     var id = btngroup.attr("id");
-//     var x = $("#" + id + " .btn-group");
-//     var i;
-//
-//     for (i = 0; i <= x.length; i++) {
-//
-//         var text = x.eq(i).children().eq(1).text();
-//         var prop = text.substring(text.indexOf(' ') + 1);
-//         if (prop === "Bedroom" || prop === "Bathroom" || prop === "Floor") {
-//             prop = "1 " + prop;
-//         }
-//         else {
-//             prop = "0 " + prop;
-//         }
-//         x.eq(i).children().eq(1).text(prop);        // reseting the value of the button to defaults
-//         x.eq(i).children().eq(0).trigger("click");// trigering click so booking summary is updated indirectly(trig. on sub(-)button)
-//     }
-//
-//     console.log("U resetu smo a id je " + id);
-// });
-
-
-// $("#Ubuttons .btn-group").on("click", function () {
-//     showBtngroup($(this));
-// });
-//
-// $("#Ebuttons .btn-group").on("click", function () {
-//     showBtngroup($(this));
-// });
-
-
-function showBtngroup(obj) {
-    btnID = obj.attr("id");
-    if (btnID[0] === "u") {
-        $(".summary-content").each(function () {
-            $("#upholstery_li").removeClass('d-none').addClass('d-flex');
-            console.log("Usao u each petlju za uphol.LI");
-        });
-    }
-    else if (btnID[0] === "e") {
-        $(".summary-content").each(function () {
-            $("#extra_li").removeClass('d-none').addClass('d-flex');
-            console.log("Usao u each petlju za extra.LI");
-        });
-    }
-
-    var btn;
-    var sumlist;
-    var df;
-    var list;
-    if (btnID[0] === "u") {
-        list = $(".supholstery").parent().siblings();
-        sumlist = $("#upholstery_li");
-        df = btngroupVisible(list);
-        btn = $("#upholsteryb");
-    }
-    else if (btnID[0] === "e") {
-        list = $(".sextra").parent().siblings();
-        sumlist = $("#extra_li");
-        df = btngroupVisible(list);
-        btn = $("#extrab");
-    }
-
-    if (df != 0) {
-        sumlist.removeClass("d-none").addClass("d-flex");
-        btn.addClass("bactive");
-    }
-    else if (df == 0) {
-        sumlist.removeClass("d-flex").addClass("d-none");
-        btn.removeClass("bactive");
-    }
-    console.log("Uradjena f-ja df = " + df);
-}
-
-
-$("#closeSum").on("click", function () {
-    $("#summary").hide();
-});
-
-$("#openSum").on("click", function () {
-    $("#summary").show();
-});
-
-
+//Prikazuje ili sklanja deo summary liste
 function btngroupVisible(list) {
     var df = 0;
     for (var i = 0; i < list.length; i++) {
@@ -601,3 +437,124 @@ function btngroupVisible(list) {
     }
     return df;
 }
+
+
+
+//F-je onclick iz html-a
+function CarpetsHide() {
+    $("#Cbuttons").collapse('hide');
+}
+
+function StageCrumbs1() {
+    $("#nav-service-tab").removeClass("fejl-active");
+}
+
+function StageCrumbs2() {
+    $("#nav-home-tab").addClass("fejl-active");
+}
+
+function StageCrumbs3() {
+    $("#nav-service-tab").addClass("fejl-active");
+}
+
+function OpenService2() {
+    $("#nav-service-tab").trigger("click");
+    $("#next1").tooltip('dispose');
+    $("#next1").tooltip('enable');
+
+}
+
+function OpenService3() {
+    $("#nav-contact-tab").trigger("click");
+}
+
+//F-je onclick se ovde zavrsavaju
+
+
+
+//Submit forme i data za new booking - AJAX
+$("#personal").submit(function(e) {
+    e.preventDefault();
+
+    var bName = $("#firstName").val();
+    var bLastname = $("#lastName").val();
+    var bemail = $("#email").val();
+    var bphone = $("#phone").val();
+
+    var propertyDetails = {
+        address: $("#address").val(),
+        houseno: $("#houseno").val(),
+        postcode: $("#postcode").val(),
+        city: $("#city").val()
+    };
+    var key;
+    if($('#key-pickup').is(':checked')){
+        key = 1;
+        console.log('Usao checked')
+    }
+    else {
+        key = 0;
+        console.log('Nije chekirano')
+    }
+
+    var additionalDetails = {
+        keyAddress: $("#key-address").val(),
+        keyHouseno: $("#key-houseno").val(),
+        keyPostcode: $("#key-postcode").val(),
+        keyCity: $("#key-city").val(),
+        instructions: $("#addcomment").val(),
+    };
+
+
+    var txt = "";
+    var total = $(".summary-content.summary-active .total-price").text().trim();
+    var property = $(".summary-content.summary-active .sproperty").text().trim();
+    var date = $(".summary-content.summary-active .sdate").text().trim();
+    var timeSlot = $(".summary-content.summary-active .stime").text().trim();
+    var time = timeSlot.split(' - ')[0].trim();
+
+    var bookingSummary = $(".summary-content.summary-active .d-100");
+
+    txt += "<h3>" + property + "</h3>";
+    txt += "<ul style=\"padding-left: 20px;\">";
+    for (var i = 0; i < bookingSummary.length - 1; i++) {
+        if (bookingSummary.eq(i).hasClass('d-flex')) {
+            txt += "<li>";
+            txt += bookingSummary.eq(i).text().replace(/\n/g, "");
+            txt += "</li>";
+        }
+    }
+    txt += "</ul>";
+    txt += "<div style=\"display: flex;\">";
+    txt += "<strong style=\"padding: 20px;\">Date: " + date + "</strong>";
+    txt += "<strong style=\"padding: 20px;\">Time: " + timeSlot + "</strong>";
+    txt += "<strong style=\"padding: 20px;\">Total sum: " + total + "</strong>";
+    txt += "</div>";
+
+    $.ajax({
+        type: "POST",
+        url: bookingObj.ajaxUrl,
+        data: {action: 'tm_add_new_booking_ajax',
+            first_name: bName, last_name: bLastname, email: bemail,
+            text_content: txt, date: date.replace(/\//g, '.'), time: time, phone: bphone,
+            property_details: propertyDetails, key: key, additional_details: additionalDetails},
+        success: function (data) {
+            $("#closeb").trigger("click");
+            $("#success-email").html(bemail);
+            $("#nav-contact .summContainer #summary").appendTo("#success-content");
+            $("#success-content #summary").removeClass().addClass("col-lg-12");
+            $("#success-email").html(bemail);
+            $(".redeem").addClass('d-none');
+
+            // $("#success-modal").trigger("click");
+
+            $("#success").modal('show');
+            $('#success').on('hidden.bs.modal', function (e) {
+                location.reload();
+            });
+        },
+        error: function (data) {
+            alert('Something went wrong in the booking proccess, please try again or call +555 555.');
+        },
+    });
+});

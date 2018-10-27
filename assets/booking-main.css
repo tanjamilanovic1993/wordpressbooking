@@ -1,9 +1,12 @@
 body.admin-bar #bookingModal {
   padding-top: 32px; }
 
+.booking-button:focus {
+  box-shadow: none; }
+
 #bookingModal {
   padding-left: 0 !important;
-  min-width: 240px; }
+  min-width: 320px; }
   #bookingModal .modal-lg {
     margin: 2rem 1rem; }
     @media (min-width: 576px) {
@@ -158,14 +161,21 @@ body.admin-bar #bookingModal {
     right: -15px;
     top: -15px;
     z-index: 1; }
-  @media (max-width: 370px) {
+  @media (max-width: 325px) {
     #bookingModal #crumbs ul li a {
       width: 70px;
       padding: 15px 4px 25px 30px;
       font-size: 10px; }
     #bookingModal h4 {
       font-size: 20px; } }
-  @media (min-width: 371px) and (max-width: 576px) {
+  @media (min-width: 326px) and (max-width: 380px) {
+    #bookingModal #crumbs ul li a {
+      width: 80px;
+      padding: 15px 4px 25px 30px;
+      font-size: 10px; }
+    #bookingModal h4 {
+      font-size: 20px; } }
+  @media (min-width: 381px) and (max-width: 576px) {
     #bookingModal #crumbs ul li a {
       width: 100px;
       padding: 15px 4px 25px 30px;
@@ -176,7 +186,7 @@ body.admin-bar #bookingModal {
     #bookingModal #crumbs ul li a {
       width: 150px;
       padding: 15px 4px 25px 30px;
-      font-size: 15px; }
+      font-size: 13px; }
     #bookingModal #crumbs ul li:last-child a {
       padding-right: 15px;
       border-top-right-radius: 5px;
@@ -189,6 +199,10 @@ body.admin-bar #bookingModal {
       width: 250px; }
     #bookingModal h4 {
       font-size: 20px; } }
+  #bookingModal svg path .active-path:hover {
+    fill: #BE6C84 !important; }
+  #bookingModal svg path .active-path:focus {
+    fill: #BE6C84 !important; }
   #bookingModal .reset {
     margin-bottom: 0.5em;
     cursor: pointer; }
@@ -210,7 +224,7 @@ body.admin-bar #bookingModal {
   #bookingModal .timeslots-container .list-group-item {
     border: none;
     background-color: transparent;
-    margin-bottom: 1px;
+    margin-bottom: 3px;
     cursor: pointer;
     font-size: 15px; }
   #bookingModal .timeslots-container .list-group-item:nth-child(even) {
@@ -276,5 +290,17 @@ body.admin-bar #bookingModal {
   #bookingModal .custom-control-input:active, #bookingModal .custom-control-label::before {
     color: #fff;
     background-color: #b3d7ff; }
+
+.reset {
+  fill: #aaaaaa; }
+  .reset:hover {
+    fill: #be6c84 !important; }
+  .reset:focus {
+    fill: #be6c84 !important; }
+
+#success-msg {
+  color: #eee;
+  background-color: #665F79;
+  border-color: #665F79; }
 
 /*# sourceMappingURL=booking-main.css.map */

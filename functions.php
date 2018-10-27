@@ -1,18 +1,6 @@
 <?php
 
-/* MAKE SCHEDULED POSTS REGULAR */
-remove_action('future_post', '_future_post_hook');
-add_filter('wp_insert_post_data', 'do_not_set_posts_to_future');
-function do_not_set_posts_to_future($data) {
-	if($data['post_status'] == 'future' && $data['post_type'] == 'tm_booking') {
-		$data['post_status'] = 'publish';
-	}
-
-	return $data;
-}
-
-
-/* ADD CUSTOM POST */
+/* ADD CUSTOM POSTS SERVICES */
 function tm_service_custom_post() {
 	register_post_type( 'tm_services', array(
 		'labels'             => array(
@@ -37,10 +25,10 @@ function tm_service_custom_post() {
 		'hierarchical'       => false,
 		'menu_position'      => 5,
 		'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'revisions' ),
-		//'rewrite'            => array('slug' => 'custom'),
 	) );
 }
 
+/* ADD CUSTOM POSTS BOOKINGS */
 function tm_booking_custom_post() {
 	register_post_type( 'tm_booking', array(
 		'labels'             => array(
@@ -65,11 +53,19 @@ function tm_booking_custom_post() {
 		'hierarchical'       => false,
 		'menu_position'      => 5,
 		'supports'           => array( 'title', 'editor', 'author', 'revisions' ),
-		//'rewrite'            => array('slug' => 'custom'),
 	) );
 }
 
+/* MAKE SCHEDULED POSTS REGULAR */
+function tm_do_not_set_posts_to_future($data) {
+	if($data['post_status'] == 'future' && $data['post_type'] == 'tm_booking') {
+		$data['post_status'] = 'publish';
+	}
 
+	return $data;
+}
+
+/* ADD NEW BOOKING */
 function tm_add_new_booking( $booking_title, $email, $phone, $text_content, $date_time, $property_details, $key , $additional_details) {
 	// Create post object
 	$my_post = array(
@@ -98,13 +94,9 @@ function tm_add_new_booking( $booking_title, $email, $phone, $text_content, $dat
 	update_post_meta($post_id, 'key_city', $additional_details['key-city']);
 	update_post_meta($post_id, 'additional_instructions', $additional_details['instructions']);
 
-
-
-
-
 }
 
-
+/* ADD NEW BOOKING AJAX func */
 function tm_add_new_booking_ajax() {
 	$first_name   = trim( sanitize_text_field( $_POST['first_name'] ) );
 	$last_name    = trim( sanitize_text_field( $_POST['last_name'] ) );
@@ -138,7 +130,7 @@ function tm_add_new_booking_ajax() {
 	wp_die();
 }
 
-
+/* DRAW THE CALENDAR */
 function tm_the_calendar( $day = '', $month = '', $year = '' ) {
 	if ( $month == '' ) {
 		$month = date( 'n' );
@@ -234,7 +226,7 @@ function tm_the_calendar( $day = '', $month = '', $year = '' ) {
 
 }
 
-
+/* DRAW THE CALENDAR AJAX func*/
 function tm_the_calendar_ajax(){
     $day  =  "";
 	$month  = sanitize_text_field( $_POST['month'] );
@@ -244,6 +236,7 @@ function tm_the_calendar_ajax(){
 	wp_die();
 }
 
+/* DRAW THE TIMESLOTS */
 function tm_the_timeslots($day = '', $month = '', $year = '') {
 	if ( $month == '' ) {
 		$month = date( 'n' );
@@ -290,6 +283,7 @@ function tm_the_timeslots($day = '', $month = '', $year = '') {
     </div>
 <?php }
 
+/* DRAW THE TIMESLOTS AJAX func*/
 function tm_the_timeslots_ajax(){
 	$day  = sanitize_text_field( $_POST['day'] );
 	$month  = sanitize_text_field( $_POST['month'] );
@@ -300,12 +294,15 @@ function tm_the_timeslots_ajax(){
 }
 
 
-
+/* DRAW THE BOOKING MODAL */
 function tm_the_booking_modal() { ?>
     <?php $service_query = new WP_Query( array(
 		'post_type' => 'tm_services',
 		'posts_per_page' => - 1,
-	) ); ?>
+	) );
+    global $post;
+    if(has_shortcode( $post->post_content, 'clean-booking')){
+    ?>
 
     <div class="modal fade" id="bookingModal" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
@@ -322,7 +319,8 @@ function tm_the_booking_modal() { ?>
                                 <li>
                                     <a id="nav-home-tab" onclick="StageCrumbs1()" data-toggle="tab" href="#nav-date"
                                        role="tab"
-                                       aria-controls="nav-home" aria-selected="true"><span class="d-block d-sm-none" aria-hidden="true" style="font-weight: bold;">1</span><span class="d-none d-sm-block" aria-hidden="true">Date & Time</span></a>
+                                       aria-controls="nav-home" aria-selected="true"><span class="d-block d-sm-none" aria-hidden="true" style="font-weight: bold;">1</span>
+                                        <span class="d-none d-sm-block" aria-hidden="true">Date & Time</span></a>
                                 </li>
                                 <li>
                                     <a id="nav-service-tab" onclick="StageCrumbs2()" data-toggle="tab"
@@ -352,9 +350,9 @@ function tm_the_booking_modal() { ?>
                                             <?php tm_the_calendar(); ?>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4 mb-3 mt-1">
+                                    <div class="col-lg-4 mb-3 mt-0">
 
-                                        <h4 class="mb-3">Choose a Time Slot</h4>
+                                        <h4 class="mb-3">Choose Arrival time</h4>
                                         <div class="timeslots-container">
 	                                    <?php tm_the_timeslots();?>
                                         </div>
@@ -369,8 +367,6 @@ function tm_the_booking_modal() { ?>
                                                 onclick="OpenService2()"
                                                 data-toggle="tooltip" data-animation="true" data-placement="left"
                                                 data-html="true" title="Continue to Service Details"> Next
-
-                                            <!--data-template='<div class="tooltip" role="tooltip"><div class="tooltip-inner"></div></div>'-->
                                         </button>
                                     </div>
                                 </div>
@@ -412,8 +408,13 @@ function tm_the_booking_modal() { ?>
                                                         <div id="<?php echo $post->post_name . '-buttons'; ?>"
                                                              class="property-buttons">
                                                             <div class="card card-body mt-2">
-                                                                <span class="fa fa-refresh align-self-end text-secondary reset"
-                                                                      aria-hidden="true"></span>
+                                                                <div class="align-self-end reset">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 496.156 496.156" style="enable-background:new 0 0 496.156 496.156;" xml:space="preserve" width="23px" height="23px" class=""><g><path  d="M0,248.08C0,111.06,111.069,0.002,248.074,0.002c137.013,0,248.082,111.059,248.082,248.078  c0,137.005-111.069,248.074-248.082,248.074C111.069,496.154,0,385.085,0,248.08z" data-original="#32BEA6" class="active-path" data-old_color="#aaaaaa"/><g>
+                                                                                <path style="fill:#EEEEEE" d="M428.243,172.149c-10.348,0.023-20.694,0.054-31.042,0.077   c-23.272-52.177-68.95-89.871-126.649-98.91c-64.287-10.071-125.816,19.788-162.504,72.312   c-16.296,23.326,22.003,45.165,38.16,22.034c50.317-72.037,157.757-65.527,201.907,4.686c-9.559,0.022-19.118,0.046-28.678,0.068   c-2.674,0.008-4.574,1.197-5.749,2.877c-1.92,2.058-2.65,5.072-0.639,8.186c18.204,28.25,36.408,56.499,54.616,84.745   c3.061,4.747,9.663,4.708,12.696-0.046c18.062-28.338,36.126-56.675,54.188-85.013C437.538,178.48,433.602,172.135,428.243,172.149   z" data-original="#FFFFFF" class="" data-old_color="#eeeeee"/>
+                                                                                <path style="fill:#EEEEEE" d="M350.353,327.224c-49.927,71.49-156.108,65.63-200.886-3.049c9.161-0.022,18.322-0.046,27.484-0.068   c2.666-0.008,4.563-1.19,5.741-2.865c1.924-2.059,2.658-5.072,0.646-8.197c-18.2-28.246-36.405-56.499-54.609-84.741   c-3.056-4.751-9.662-4.712-12.695,0.046c-18.063,28.334-36.13,56.671-54.196,85.009c-2.987,4.689,0.948,11.032,6.308,11.017   c10.669-0.027,21.337-0.054,32.006-0.08c23.498,51.319,68.777,88.332,125.865,97.275c64.287,10.072,125.816-19.784,162.496-72.312   C404.806,325.928,366.508,304.09,350.353,327.224z" data-original="#FFFFFF" class="" data-old_color="#eeeeee"/>
+                                                                            </g></g> </svg>
+
+                                                                </div>
                                                                 <div class="row">
                                                                     <div class="col-12 col-lg-6 col-xl-12">
                                                                         <div class="btn-toolbar" role="toolbar"
@@ -505,7 +506,6 @@ function tm_the_booking_modal() { ?>
 													}
 													?>
 
-
 												<?php } ?>
 												<?php wp_reset_query(); ?>
 
@@ -535,7 +535,14 @@ function tm_the_booking_modal() { ?>
                                                 </button>
                                                 <div class="collapse" id="Cbuttons">
                                                     <div class="card card-body mt-2">
-                                                        <span class="fa fa-refresh align-self-end text-secondary reset" aria-hidden="true"></span>
+                                                        <div class="align-self-end reset">
+
+                                                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 496.156 496.156" style="enable-background:new 0 0 496.156 496.156;" xml:space="preserve" width="23px" height="23px" class=""><g><path  d="M0,248.08C0,111.06,111.069,0.002,248.074,0.002c137.013,0,248.082,111.059,248.082,248.078  c0,137.005-111.069,248.074-248.082,248.074C111.069,496.154,0,385.085,0,248.08z" data-original="#32BEA6" class="active-path" data-old_color="#aaaaaa"/><g>
+                                                                        <path style="fill:#EEEEEE" d="M428.243,172.149c-10.348,0.023-20.694,0.054-31.042,0.077   c-23.272-52.177-68.95-89.871-126.649-98.91c-64.287-10.071-125.816,19.788-162.504,72.312   c-16.296,23.326,22.003,45.165,38.16,22.034c50.317-72.037,157.757-65.527,201.907,4.686c-9.559,0.022-19.118,0.046-28.678,0.068   c-2.674,0.008-4.574,1.197-5.749,2.877c-1.92,2.058-2.65,5.072-0.639,8.186c18.204,28.25,36.408,56.499,54.616,84.745   c3.061,4.747,9.663,4.708,12.696-0.046c18.062-28.338,36.126-56.675,54.188-85.013C437.538,178.48,433.602,172.135,428.243,172.149   z" data-original="#FFFFFF" class="" data-old_color="#eeeeee"/>
+                                                                        <path style="fill:#EEEEEE" d="M350.353,327.224c-49.927,71.49-156.108,65.63-200.886-3.049c9.161-0.022,18.322-0.046,27.484-0.068   c2.666-0.008,4.563-1.19,5.741-2.865c1.924-2.059,2.658-5.072,0.646-8.197c-18.2-28.246-36.405-56.499-54.609-84.741   c-3.056-4.751-9.662-4.712-12.695,0.046c-18.063,28.334-36.13,56.671-54.196,85.009c-2.987,4.689,0.948,11.032,6.308,11.017   c10.669-0.027,21.337-0.054,32.006-0.08c23.498,51.319,68.777,88.332,125.865,97.275c64.287,10.072,125.816-19.784,162.496-72.312   C404.806,325.928,366.508,304.09,350.353,327.224z" data-original="#FFFFFF" class="" data-old_color="#eeeeee"/>
+                                                                    </g></g> </svg>
+
+                                                        </div>
                                                         <div class="row">
                                                             <div class="col-12 col-lg-6 col-xl-12">
                                                                 <div class="btn-toolbar mb-2" role="toolbar"
@@ -551,7 +558,7 @@ function tm_the_booking_modal() { ?>
                                                                     </div>
                                                                     <div  class="c2 btn-group btn-group-sm mr-2"
                                                                           role="group"
-                                                                          aria-label="rugs filter">
+                                                                          aria-label="rug filter">
                                                                         <button type="button" class="btn btn-secondary counter">-
                                                                         </button>
                                                                         <button class="btn service-label"><span>0</span> Rug</button>
@@ -579,8 +586,13 @@ function tm_the_booking_modal() { ?>
                                                 </button>
                                                 <div class="collapse" id="Ubuttons">
                                                     <div class="card card-body mt-2">
-                                                        <span class="fa fa-refresh align-self-end text-secondary reset"
-                                                              aria-hidden="true"></span>
+                                                        <div class="align-self-end reset">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 496.156 496.156" style="enable-background:new 0 0 496.156 496.156;" xml:space="preserve" width="23px" height="23px" class=""><g><path  d="M0,248.08C0,111.06,111.069,0.002,248.074,0.002c137.013,0,248.082,111.059,248.082,248.078  c0,137.005-111.069,248.074-248.082,248.074C111.069,496.154,0,385.085,0,248.08z" data-original="#32BEA6" class="active-path" data-old_color="#aaaaaa"/><g>
+                                                                        <path style="fill:#EEEEEE" d="M428.243,172.149c-10.348,0.023-20.694,0.054-31.042,0.077   c-23.272-52.177-68.95-89.871-126.649-98.91c-64.287-10.071-125.816,19.788-162.504,72.312   c-16.296,23.326,22.003,45.165,38.16,22.034c50.317-72.037,157.757-65.527,201.907,4.686c-9.559,0.022-19.118,0.046-28.678,0.068   c-2.674,0.008-4.574,1.197-5.749,2.877c-1.92,2.058-2.65,5.072-0.639,8.186c18.204,28.25,36.408,56.499,54.616,84.745   c3.061,4.747,9.663,4.708,12.696-0.046c18.062-28.338,36.126-56.675,54.188-85.013C437.538,178.48,433.602,172.135,428.243,172.149   z" data-original="#FFFFFF" class="" data-old_color="#eeeeee"/>
+                                                                        <path style="fill:#EEEEEE" d="M350.353,327.224c-49.927,71.49-156.108,65.63-200.886-3.049c9.161-0.022,18.322-0.046,27.484-0.068   c2.666-0.008,4.563-1.19,5.741-2.865c1.924-2.059,2.658-5.072,0.646-8.197c-18.2-28.246-36.405-56.499-54.609-84.741   c-3.056-4.751-9.662-4.712-12.695,0.046c-18.063,28.334-36.13,56.671-54.196,85.009c-2.987,4.689,0.948,11.032,6.308,11.017   c10.669-0.027,21.337-0.054,32.006-0.08c23.498,51.319,68.777,88.332,125.865,97.275c64.287,10.072,125.816-19.784,162.496-72.312   C404.806,325.928,366.508,304.09,350.353,327.224z" data-original="#FFFFFF" class="" data-old_color="#eeeeee"/>
+                                                                    </g></g> </svg>
+
+                                                        </div>
                                                         <div class="row">
                                                             <div class="col-12 col-lg-6 col-xl-12">
                                                                 <div class="btn-toolbar" role="toolbar"
@@ -682,8 +694,14 @@ function tm_the_booking_modal() { ?>
                                                 </button>
                                                 <div class="collapse" id="Ebuttons">
                                                     <div class="card card-body mt-2">
-                                                        <span class="fa fa-refresh align-self-end text-secondary reset"
-                                                              aria-hidden="true"></span>
+                                                        <div class="align-self-end reset">
+
+                                                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 496.156 496.156" style="enable-background:new 0 0 496.156 496.156;" xml:space="preserve" width="23px" height="23px" class=""><g><path  d="M0,248.08C0,111.06,111.069,0.002,248.074,0.002c137.013,0,248.082,111.059,248.082,248.078  c0,137.005-111.069,248.074-248.082,248.074C111.069,496.154,0,385.085,0,248.08z" data-original="#32BEA6" class="active-path" data-old_color="#aaaaaa"/><g>
+                                                                        <path style="fill:#EEEEEE" d="M428.243,172.149c-10.348,0.023-20.694,0.054-31.042,0.077   c-23.272-52.177-68.95-89.871-126.649-98.91c-64.287-10.071-125.816,19.788-162.504,72.312   c-16.296,23.326,22.003,45.165,38.16,22.034c50.317-72.037,157.757-65.527,201.907,4.686c-9.559,0.022-19.118,0.046-28.678,0.068   c-2.674,0.008-4.574,1.197-5.749,2.877c-1.92,2.058-2.65,5.072-0.639,8.186c18.204,28.25,36.408,56.499,54.616,84.745   c3.061,4.747,9.663,4.708,12.696-0.046c18.062-28.338,36.126-56.675,54.188-85.013C437.538,178.48,433.602,172.135,428.243,172.149   z" data-original="#FFFFFF" class="" data-old_color="#eeeeee"/>
+                                                                        <path style="fill:#EEEEEE" d="M350.353,327.224c-49.927,71.49-156.108,65.63-200.886-3.049c9.161-0.022,18.322-0.046,27.484-0.068   c2.666-0.008,4.563-1.19,5.741-2.865c1.924-2.059,2.658-5.072,0.646-8.197c-18.2-28.246-36.405-56.499-54.609-84.741   c-3.056-4.751-9.662-4.712-12.695,0.046c-18.063,28.334-36.13,56.671-54.196,85.009c-2.987,4.689,0.948,11.032,6.308,11.017   c10.669-0.027,21.337-0.054,32.006-0.08c23.498,51.319,68.777,88.332,125.865,97.275c64.287,10.072,125.816-19.784,162.496-72.312   C404.806,325.928,366.508,304.09,350.353,327.224z" data-original="#FFFFFF" class="" data-old_color="#eeeeee"/>
+                                                                    </g></g> </svg>
+
+                                                        </div>
                                                         <div class="row">
                                                             <div class="col-12 col-lg-6 col-xl-12">
                                                                 <div class="btn-toolbar" role="toolbar"
@@ -821,13 +839,6 @@ function tm_the_booking_modal() { ?>
                                                                 <div class="mb-1 property-img" data-toggle="tooltip" data-animation="true" data-placement="left" data-html="true" title="Living room, kitchen, hallway and landing cleaning is part of the service.">
                                                                     <svg height="33" viewBox="-4 0 512 512" width="33" xmlns="http://www.w3.org/2000/svg" class=""><g><path d="m446 224.402344v287.597656h-387.542969v-236.261719l-.425781-31.285156 66.035156-70.300781 75.746094-80.636719 52.410156-55.804687 4.222656 4.0625zm0 0" fill="#e8e7e6" data-original="#E8E7E6" class=""></path><path d="m155.796875 252.171875h192.855469v192.855469h-192.855469zm0 0" fill="#ff4440" data-original="#FF4440" class="" style="fill:#665F79" data-old_color="#FF4440"></path><path d="m184.214844 280.589844h53.796875v136.015625h-53.796875zm0 0" fill="#9af4e7" data-original="#9AF4E7" class="" style="fill:#BE6C84" data-old_color="#9AF4E7"></path><path d="m266.433594 280.589844h53.796875v136.015625h-53.796875zm0 0" fill="#9af4e7" data-original="#9AF4E7" class="" style="fill:#BE6C84" data-old_color="#9AF4E7"></path><path d="m132.367188 446.570312c0 28.367188-18.0625 52.519532-43.304688 61.59375-6.914062 2.488282-14.363281 3.835938-22.128906 3.835938-36.144532 0-65.429688-29.292969-65.429688-65.429688 0-36.136718 29.285156-65.429687 65.429688-65.429687 7.765625 0 15.214844 1.347656 22.128906 3.835937 25.238281 9.070313 43.304688 33.222657 43.304688 61.59375zm0 0" fill="#99aa52" data-original="#99AA52" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m132.367188 446.570312c0 28.367188-18.0625 52.519532-43.304688 61.59375-25.246094-9.074218-43.304688-33.226562-43.304688-61.59375 0-28.371093 18.058594-52.523437 43.304688-61.59375 25.238281 9.070313 43.304688 33.222657 43.304688 61.59375zm0 0" fill="#adc165" data-original="#ADC165" class="active-path" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m449.125 31.542969v228.847656l-65.566406-87.5625-48.597656-98.566406v-42.71875zm0 0" fill="#e8e7e6" data-original="#E8E7E6" class=""></path><path d="m383.558594 31.542969v163.289062l-48.597656-48.597656v-114.691406zm0 0" fill="#d1d1d1" data-original="#D1D1D1" class="" style="fill:#HTTPS:" data-old_color="#https:"></path><path d="m446 224.402344v80.375l-185.292969-185.292969-202.25 202.25v-45.996094l-.425781-31.285156 66.035156-70.300781 132.378906-132.378906zm0 0" fill="#d1d1d1" data-original="#D1D1D1" class="" style="fill:#HTTPS:" data-old_color="#https:"></path><path d="m40.980469 301.6875-40.980469-40.984375 260.703125-260.703125 243.320313 243.320312-40.980469 40.980469-202.339844-202.335937zm0 0" fill="#ff4440" data-original="#FF4440" class="" style="fill:#665F79" data-old_color="#FF4440"></path></g> </svg>
                                                                 </div>
-
-<!--                                                                <img class="mb-1 property-img"-->
-<!--                                                                     src="--><?php //echo plugin_dir_url( __FILE__ ) . 'assets/img/home.png'; ?><!--"-->
-<!--                                                                     alt="property icon"-->
-<!--                                                                     data-toggle="tooltip" data-animation="true" data-placement="left"-->
-<!--                                                                     data-html="true" title="Living room, kitchen, hallway and landing cleaning is part of the service."-->
-<!--                                                                >-->
                                                             </div>
 
                                                             <div class="d-100 d-none studio-property justify-content-between">
@@ -867,8 +878,7 @@ function tm_the_booking_modal() { ?>
                                                                 <h6 class="my-0 pt-2 scarpets">Carpets</h6>
                                                                 <div class="carpets-img"
                                                                      data-toggle="tooltip" data-animation="true" data-placement="left"
-                                                                     data-html="true" title="Professional steam cleaning of choosen carpets and rugs."
-                                                                >
+                                                                     data-html="true" title="Professional steam cleaning of choosen carpets and rugs.">
                                                                     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve" width="33" height="33" class=""><g><path style="fill:#A2B1B7" d="M319.578,0c-51.81,0-93.96,42.151-93.96,93.96v186.233h33.758V93.96  c0-33.196,27.007-60.202,60.202-60.202S379.78,60.765,379.78,93.96v84.958h33.758V93.96C413.538,42.151,371.388,0,319.578,0z" data-original="#A2B1B7" class=""></path><rect x="374.154" y="156.413" style="fill:#C4D3D9" width="45.011" height="288.07" data-original="#C4D3D9" class=""></rect><path style="fill:#A2B1B7" d="M135.708,0c-9.322,0-16.879,7.557-16.879,16.879V145.16h33.758V16.879  C152.587,7.557,145.03,0,135.708,0z" data-original="#A2B1B7" class=""></path><rect x="107.576" y="122.655" style="fill:#C4D3D9" width="56.264" height="59.476" data-original="#C4D3D9" class=""></rect><path style="fill:#665F79" d="M180.719,164.852h-45.011l90.022,313.39h33.758V280.193  C259.488,227.713,226.825,182.858,180.719,164.852z" data-original="#ED6350" class="" data-old_color="#ED6350"></path><path style="fill:#665F79" d="M180.721,172.976l-90.024-8.124c-46.106,18.007-78.769,62.86-78.769,115.342v198.048H225.73V280.193  C225.73,234.38,207.627,194.38,180.721,172.976z" data-original="#F37C4A" class="" data-old_color="#F37C4A"></path><g>
                                                                                 <path style="fill:#A2B1B7" d="M34.433,410.725c-12.43,0-22.505,10.076-22.505,22.506v56.264c0,12.43,10.076,22.505,22.505,22.505   s22.505-10.076,22.505-22.505v-56.264C56.939,420.801,46.863,410.725,34.433,410.725z" data-original="#414D53" class="active-path" data-old_color="#414D53"></path>
                                                                                 <path style="fill:#A2B1B7" d="M236.983,410.725c-12.43,0-22.505,10.076-22.505,22.506v56.264c0,12.43,10.076,22.505,22.505,22.505   s22.505-10.076,22.505-22.505v-56.264C259.488,420.801,249.413,410.725,236.983,410.725z" data-original="#414D53" class="active-path" data-old_color="#414D53"></path>
@@ -892,7 +902,7 @@ function tm_the_booking_modal() { ?>
                                                                 <small class="text-muted price" data-price="<?php echo $carpet; ?>">£<?php echo $carpet; ?></small>
                                                             </div>
                                                             <div class="d-100 d-none justify-content-between c2">
-                                                                <small class="text-muted"><span>1</span> Rugs</small>
+                                                                <small class="text-muted"><span>1</span> Rug</small>
                                                                 <small class="text-muted price" data-price="<?php echo $rug; ?>" >£<?php echo $rug; ?></small>
                                                             </div>
                                                         </div>
@@ -993,15 +1003,18 @@ function tm_the_booking_modal() { ?>
                                                     <li class="list-group-item d-flex justify-content-between lh-condensed">
                                                         <div class="w-100">
                                                             <div class="d-flex justify-content-between">
-                                                                <h6 id="sdate" class="my-0 pt-3">Date</h6>
-                                                                <h6 id="stime" class="my-0 pt-3">Time</h6>
+                                                                <h6 class="my-0 pt-2">Scheduled</h6>
+                                                                <div>
+                                                                    <svg height="33" viewBox="-4 0 512 512" width="33" xmlns="http://www.w3.org/2000/svg" class=""><g><path d="m475.117188 43.390625h-319.554688c16.53125 18.429687 26.675781 42.710937 26.675781 69.421875h321.082031v-41.21875c0-15.578125-12.625-28.203125-28.203124-28.203125zm0 0" fill="#dd352e" data-original="#DD352E" class="" style="fill:#665F79" data-old_color="#BE6C84"></path><path d="m208.269531 112.8125h-208.269531v373.039062c0 14.441407 11.707031 26.148438 26.148438 26.148438h451.027343c14.441407 0 26.144531-11.707031 26.144531-26.148438v-373.039062zm0 0" fill="#f2ecbf" data-original="#F2ECBF" class="" style="fill:#EEEEEE" data-old_color="#eeeeee"></path><g fill="#28384c" fill-rule="evenodd"><path d="m312.40625 156.203125h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m399.1875 156.203125h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m52.066406 242.984375h52.070313v52.066406h-52.070313zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m138.847656 242.984375h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m225.628906 242.984375h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m52.066406 329.761719h52.070313v52.070312h-52.070313zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m138.847656 329.761719h52.066406v52.070312h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m225.628906 329.761719h52.066406v52.070312h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m52.066406 416.542969h52.070313v52.066406h-52.070313zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m138.847656 416.542969h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m225.628906 416.542969h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m312.40625 242.984375h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m312.40625 329.761719h52.066406v52.070312h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m312.40625 416.542969h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m399.1875 242.984375h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m399.1875 329.761719h52.066406v52.070312h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m399.1875 416.542969h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path></g><path d="m425.21875 52.066406c-4.789062 0-8.675781-3.878906-8.675781-8.675781 0-23.925781 19.464843-43.390625 43.390625-43.390625 4.789062 0 8.675781 3.878906 8.675781 8.679688 0 4.796874-3.886719 8.675781-8.675781 8.675781-14.355469 0-26.035156 11.679687-26.035156 26.035156 0 4.796875-3.886719 8.675781-8.679688 8.675781zm0 0" fill="#e7eced" data-original="#E7ECED" class="" style="fill:#DDDDDD" data-old_color="#dddddd"></path><path d="m425.21875 86.78125c-4.789062 0-8.675781-3.878906-8.675781-8.679688v-34.710937c0-4.800781 3.886719-8.679687 8.675781-8.679687 4.792969 0 8.679688 3.878906 8.679688 8.679687v34.710937c0 4.800782-3.886719 8.679688-8.679688 8.679688zm0 0" fill="#e7eced" data-original="#E7ECED" class="" style="fill:#DDDDDD" data-old_color="#dddddd"></path><path d="m208.269531 112.8125c0 57.511719-46.621093 104.136719-104.132812 104.136719s-104.136719-46.625-104.136719-104.136719 46.625-104.132812 104.136719-104.132812 104.132812 46.621093 104.132812 104.132812zm0 0" fill="#e7eced" data-original="#E7ECED" class="" style="fill:#DDDDDD" data-old_color="#dddddd"></path><path d="m130.167969 121.492188h-26.03125c-4.792969 0-8.679688-3.878907-8.679688-8.679688 0-4.796875 3.886719-8.675781 8.679688-8.675781h26.03125c4.792969 0 8.679687 3.878906 8.679687 8.675781 0 4.800781-3.886718 8.679688-8.679687 8.679688zm0 0" fill="#28384c" data-original="#28384C" class="active-path" style="fill:#665F79" data-old_color="#BE6C84"></path><path d="m104.136719 121.492188c-4.792969 0-8.679688-3.878907-8.679688-8.679688v-43.390625c0-4.796875 3.886719-8.675781 8.679688-8.675781 4.789062 0 8.675781 3.878906 8.675781 8.675781v43.390625c0 4.800781-3.886719 8.679688-8.675781 8.679688zm0 0" fill="#28384c" data-original="#28384C" class="active-path" style="fill:#665F79" data-old_color="#BE6C84"></path><path d="m451.253906 86.78125h-52.066406c-4.792969 0-8.679688-3.878906-8.679688-8.679688 0-4.796874 3.886719-8.679687 8.679688-8.679687h52.066406c4.789063 0 8.679688 3.882813 8.679688 8.679687 0 4.800782-3.890625 8.679688-8.679688 8.679688zm0 0" fill="#ebba16" data-original="#EBBA16" class="" style="fill:#BE6C84" data-old_color="#EBBA16"></path><path d="m171.347656 33.332031-12.601562 12.601563c-3.394532 3.390625-3.394532 8.875 0 12.269531 1.691406 1.691406 3.914062 2.542969 6.136718 2.542969 2.21875 0 4.441407-.851563 6.132813-2.542969l12.601563-12.601563c-3.75-4.414062-7.855469-8.519531-12.269532-12.269531zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m104.136719 8.679688c-2.933594 0-5.808594.199218-8.679688.433593v25.597657c0 4.800781 3.886719 8.679687 8.679688 8.679687 4.789062 0 8.675781-3.878906 8.675781-8.679687v-25.597657c-2.871094-.234375-5.742188-.433593-8.675781-.433593zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m24.652344 45.601562 12.601562 12.601563c1.691406 1.691406 3.914063 2.542969 6.136719 2.542969s4.441406-.851563 6.132813-2.542969c3.394531-3.394531 3.394531-8.878906 0-12.269531l-12.597657-12.601563c-4.417969 3.75-8.523437 7.855469-12.273437 12.269531zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m171.015625 167.425781c-3.382813-3.394531-8.886719-3.394531-12.269531 0-3.394532 3.390625-3.394532 8.875 0 12.269531l12.601562 12.601563c4.425782-3.742187 8.519532-7.847656 12.269532-12.273437zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m104.136719 182.238281c-4.792969 0-8.679688 3.878907-8.679688 8.675781v25.601563c2.871094.234375 5.746094.433594 8.679688.433594 2.933593 0 5.804687-.199219 8.675781-.433594v-25.601563c0-4.796874-3.886719-8.675781-8.675781-8.675781zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m173.558594 112.8125c0 4.800781 3.886718 8.679688 8.679687 8.679688h25.589844c.242187-2.875.441406-5.746094.441406-8.679688s-.199219-5.804688-.441406-8.675781h-25.589844c-4.792969 0-8.679687 3.878906-8.679687 8.675781zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m26.035156 104.136719h-25.59375c-.242187 2.871093-.441406 5.742187-.441406 8.675781s.199219 5.804688.441406 8.679688h25.59375c4.789063 0 8.675782-3.878907 8.675782-8.679688 0-4.796875-3.886719-8.675781-8.675782-8.675781zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m37.253906 167.425781-12.601562 12.597657c3.75 4.425781 7.847656 8.53125 12.273437 12.273437l12.597657-12.601563c3.394531-3.394531 3.394531-8.878906 0-12.269531-3.382813-3.394531-8.882813-3.394531-12.269532 0zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path></g> </svg>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between">
+                                                                <h6 id="sdate" class="my-0 pt-2 text-muted">Date</h6>
+                                                                <span class="text-muted small stime my-0 pt-3"></span>
                                                             </div>
                                                             <div class="d-100 d-flex justify-content-between">
-                                                                <span class="text-muted small sdate">08/10/2018</span>
-                                                                <div>
-                                                                    <svg height="55" viewBox="-4 0 512 512" width="55" xmlns="http://www.w3.org/2000/svg" class=""><g><path d="m475.117188 43.390625h-319.554688c16.53125 18.429687 26.675781 42.710937 26.675781 69.421875h321.082031v-41.21875c0-15.578125-12.625-28.203125-28.203124-28.203125zm0 0" fill="#dd352e" data-original="#DD352E" class="" style="fill:#665F79" data-old_color="#BE6C84"></path><path d="m208.269531 112.8125h-208.269531v373.039062c0 14.441407 11.707031 26.148438 26.148438 26.148438h451.027343c14.441407 0 26.144531-11.707031 26.144531-26.148438v-373.039062zm0 0" fill="#f2ecbf" data-original="#F2ECBF" class="" style="fill:#EEEEEE" data-old_color="#eeeeee"></path><g fill="#28384c" fill-rule="evenodd"><path d="m312.40625 156.203125h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m399.1875 156.203125h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m52.066406 242.984375h52.070313v52.066406h-52.070313zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m138.847656 242.984375h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m225.628906 242.984375h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m52.066406 329.761719h52.070313v52.070312h-52.070313zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m138.847656 329.761719h52.066406v52.070312h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m225.628906 329.761719h52.066406v52.070312h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m52.066406 416.542969h52.070313v52.066406h-52.070313zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m138.847656 416.542969h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m225.628906 416.542969h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m312.40625 242.984375h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m312.40625 329.761719h52.066406v52.070312h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m312.40625 416.542969h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m399.1875 242.984375h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m399.1875 329.761719h52.066406v52.070312h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path><path d="m399.1875 416.542969h52.066406v52.066406h-52.066406zm0 0" data-original="#000000" class="" style="fill:#665F79" data-old_color="#000000"></path></g><path d="m425.21875 52.066406c-4.789062 0-8.675781-3.878906-8.675781-8.675781 0-23.925781 19.464843-43.390625 43.390625-43.390625 4.789062 0 8.675781 3.878906 8.675781 8.679688 0 4.796874-3.886719 8.675781-8.675781 8.675781-14.355469 0-26.035156 11.679687-26.035156 26.035156 0 4.796875-3.886719 8.675781-8.679688 8.675781zm0 0" fill="#e7eced" data-original="#E7ECED" class="" style="fill:#DDDDDD" data-old_color="#dddddd"></path><path d="m425.21875 86.78125c-4.789062 0-8.675781-3.878906-8.675781-8.679688v-34.710937c0-4.800781 3.886719-8.679687 8.675781-8.679687 4.792969 0 8.679688 3.878906 8.679688 8.679687v34.710937c0 4.800782-3.886719 8.679688-8.679688 8.679688zm0 0" fill="#e7eced" data-original="#E7ECED" class="" style="fill:#DDDDDD" data-old_color="#dddddd"></path><path d="m208.269531 112.8125c0 57.511719-46.621093 104.136719-104.132812 104.136719s-104.136719-46.625-104.136719-104.136719 46.625-104.132812 104.136719-104.132812 104.132812 46.621093 104.132812 104.132812zm0 0" fill="#e7eced" data-original="#E7ECED" class="" style="fill:#DDDDDD" data-old_color="#dddddd"></path><path d="m130.167969 121.492188h-26.03125c-4.792969 0-8.679688-3.878907-8.679688-8.679688 0-4.796875 3.886719-8.675781 8.679688-8.675781h26.03125c4.792969 0 8.679687 3.878906 8.679687 8.675781 0 4.800781-3.886718 8.679688-8.679687 8.679688zm0 0" fill="#28384c" data-original="#28384C" class="active-path" style="fill:#665F79" data-old_color="#BE6C84"></path><path d="m104.136719 121.492188c-4.792969 0-8.679688-3.878907-8.679688-8.679688v-43.390625c0-4.796875 3.886719-8.675781 8.679688-8.675781 4.789062 0 8.675781 3.878906 8.675781 8.675781v43.390625c0 4.800781-3.886719 8.679688-8.675781 8.679688zm0 0" fill="#28384c" data-original="#28384C" class="active-path" style="fill:#665F79" data-old_color="#BE6C84"></path><path d="m451.253906 86.78125h-52.066406c-4.792969 0-8.679688-3.878906-8.679688-8.679688 0-4.796874 3.886719-8.679687 8.679688-8.679687h52.066406c4.789063 0 8.679688 3.882813 8.679688 8.679687 0 4.800782-3.890625 8.679688-8.679688 8.679688zm0 0" fill="#ebba16" data-original="#EBBA16" class="" style="fill:#BE6C84" data-old_color="#EBBA16"></path><path d="m171.347656 33.332031-12.601562 12.601563c-3.394532 3.390625-3.394532 8.875 0 12.269531 1.691406 1.691406 3.914062 2.542969 6.136718 2.542969 2.21875 0 4.441407-.851563 6.132813-2.542969l12.601563-12.601563c-3.75-4.414062-7.855469-8.519531-12.269532-12.269531zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m104.136719 8.679688c-2.933594 0-5.808594.199218-8.679688.433593v25.597657c0 4.800781 3.886719 8.679687 8.679688 8.679687 4.789062 0 8.675781-3.878906 8.675781-8.679687v-25.597657c-2.871094-.234375-5.742188-.433593-8.675781-.433593zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m24.652344 45.601562 12.601562 12.601563c1.691406 1.691406 3.914063 2.542969 6.136719 2.542969s4.441406-.851563 6.132813-2.542969c3.394531-3.394531 3.394531-8.878906 0-12.269531l-12.597657-12.601563c-4.417969 3.75-8.523437 7.855469-12.273437 12.269531zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m171.015625 167.425781c-3.382813-3.394531-8.886719-3.394531-12.269531 0-3.394532 3.390625-3.394532 8.875 0 12.269531l12.601562 12.601563c4.425782-3.742187 8.519532-7.847656 12.269532-12.273437zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m104.136719 182.238281c-4.792969 0-8.679688 3.878907-8.679688 8.675781v25.601563c2.871094.234375 5.746094.433594 8.679688.433594 2.933593 0 5.804687-.199219 8.675781-.433594v-25.601563c0-4.796874-3.886719-8.675781-8.675781-8.675781zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m173.558594 112.8125c0 4.800781 3.886718 8.679688 8.679687 8.679688h25.589844c.242187-2.875.441406-5.746094.441406-8.679688s-.199219-5.804688-.441406-8.675781h-25.589844c-4.792969 0-8.679687 3.878906-8.679687 8.675781zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m26.035156 104.136719h-25.59375c-.242187 2.871093-.441406 5.742187-.441406 8.675781s.199219 5.804688.441406 8.679688h25.59375c4.789063 0 8.675782-3.878907 8.675782-8.679688 0-4.796875-3.886719-8.675781-8.675782-8.675781zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path><path d="m37.253906 167.425781-12.601562 12.597657c3.75 4.425781 7.847656 8.53125 12.273437 12.273437l12.597657-12.601563c3.394531-3.394531 3.394531-8.878906 0-12.269531-3.382813-3.394531-8.882813-3.394531-12.269532 0zm0 0" fill="#7383bf" data-original="#7383BF" class="" style="fill:#AAAAAA" data-old_color="#aaaaaa"></path></g> </svg>
-                                                                </div>
-                                                                <span class="text-muted small stime"></span>
+                                                                <h6 id="stime" class="my-0 pt-2 text-muted">Time</h6>
+                                                                <span class="text-muted small sdate my-0 pt-3">08/10/2018</span>
                                                             </div>
                                                         </div>
                                                     </li>
@@ -1065,7 +1078,13 @@ function tm_the_booking_modal() { ?>
                                                     <label for="email">Email</label>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
-                                                            <span class="fa fa-envelope input-group-text pt-3"></span>
+                                                            <span class="fa fa-envelope input-group-text">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve" width="25px" height="25px" class=""><g><g>
+	<g>
+		<path d="M469.333,64H42.667C19.135,64,0,83.135,0,106.667v298.667C0,428.865,19.135,448,42.667,448h426.667    C492.865,448,512,428.865,512,405.333V106.667C512,83.135,492.865,64,469.333,64z M42.667,85.333h426.667    c1.572,0,2.957,0.573,4.432,0.897c-36.939,33.807-159.423,145.859-202.286,184.478c-3.354,3.021-8.76,6.625-15.479,6.625    s-12.125-3.604-15.49-6.635C197.652,232.085,75.161,120.027,38.228,86.232C39.706,85.908,41.094,85.333,42.667,85.333z     M21.333,405.333V106.667c0-2.09,0.63-3.986,1.194-5.896c28.272,25.876,113.736,104.06,169.152,154.453    C136.443,302.671,50.957,383.719,22.46,410.893C21.957,409.079,21.333,407.305,21.333,405.333z M469.333,426.667H42.667    c-1.704,0-3.219-0.594-4.81-0.974c29.447-28.072,115.477-109.586,169.742-156.009c7.074,6.417,13.536,12.268,18.63,16.858    c8.792,7.938,19.083,12.125,29.771,12.125s20.979-4.188,29.76-12.115c5.096-4.592,11.563-10.448,18.641-16.868    c54.268,46.418,140.286,127.926,169.742,156.009C472.552,426.073,471.039,426.667,469.333,426.667z M490.667,405.333    c0,1.971-0.624,3.746-1.126,5.56c-28.508-27.188-113.984-108.227-169.219-155.668c55.418-50.393,140.869-128.57,169.151-154.456    c0.564,1.91,1.194,3.807,1.194,5.897V405.333z" data-original="#000000" class="active-path" data-old_color="#000000" fill="#665F79"/>
+	</g>
+</g></g> </svg>
+                                                            </span>
                                                         </div>
                                                         <input type="text" class="form-control" id="email"
                                                                placeholder="Email" required>
@@ -1207,4 +1226,6 @@ function tm_the_booking_modal() { ?>
             </div>
         </div>
     </div>
-<?php }
+<?php }}
+
+

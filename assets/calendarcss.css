@@ -8,7 +8,7 @@ body {
   font-family: Verdana, sans-serif; }
 
 .month {
-  padding: 69px 25px;
+  padding: 66px 25px;
   width: 100%;
   background: #BE6C84;
   text-align: center;
@@ -35,7 +35,7 @@ body {
 
 .weekdays {
   margin: 0;
-  padding: 10px 0;
+  padding: 13px 0;
   background-color: #ddd; }
 
 .weekdays li {
@@ -45,7 +45,7 @@ body {
   text-align: center; }
 
 .days {
-  padding: 10px 0;
+  padding: 14px 0;
   background: #eee;
   margin: 0;
   border-bottom-left-radius: 5px;
@@ -101,7 +101,7 @@ body {
 
   .days li .active {
     padding: 2px; } }
-@media screen and (max-width: 290px) {
+@media screen and (max-width: 390px) {
   .weekdays li, .days li {
-    width: 12.2%; } }
+    width: 12%; } }
 
